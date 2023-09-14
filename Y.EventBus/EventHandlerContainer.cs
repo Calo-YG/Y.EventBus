@@ -59,7 +59,7 @@ namespace Y.EventBus
                 return;
             }
 
-            Events.Append(new EventDiscription(eto, handler));
+            Events.Append(new EventDiscription(eto, null));
 
             var handlerbaseType = typeof(IEventHandler<>);
 
@@ -73,7 +73,7 @@ namespace Y.EventBus
 
         public void TryAdd<TEto>()
         {
-            TryAdd(typeof(TEto))
+            TryAdd(typeof(TEto));
         }
     }
 }
