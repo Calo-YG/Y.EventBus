@@ -127,7 +127,12 @@ namespace Y.EventBus
 
                     var handlertype = baseType.MakeGenericType(item.EtoType);
 
-                    var handler = scope.ServiceProvider.GetRequiredService(handlertype) as IEventHandler;
+                    var handler = scope.ServiceProvider.GetRequiredService(handlertype);
+
+                    if(handler is not IEventHandler @eventhandler)
+                    {
+                        return
+                    }
 
                     var reader = channel.Reader;
 
@@ -137,7 +142,7 @@ namespace Y.EventBus
                         {
                             while (reader.TryRead(out string data))
                             {
-                                await handler.HandelrAsync(data);
+                                await eventhandler.HandelrAsync(data);
                             }
                         }
                     }
