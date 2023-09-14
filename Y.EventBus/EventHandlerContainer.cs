@@ -23,6 +23,8 @@ namespace Y.EventBus
 
             return discription is null;
         }
+        
+        ///订阅并且注入EventHandler
         public void TryAdd(Type eto,Type handler)
         {
             if(!Check(eto))
@@ -47,6 +49,31 @@ namespace Y.EventBus
         public void TryAdd<TEto, THandler>()
         {
             TryAdd(typeof(TEto),typeof(THandler));  
+        }
+
+        
+        public void TryAdd(Type eto)
+        {
+            if (!Check(eto))
+            {
+                return;
+            }
+
+            Events.Append(new EventDiscription(eto, handler));
+
+            var handlerbaseType = typeof(IEventHandler<>);
+
+            var handlertype = handlerbaseType.MakeGenericType(eto);
+
+            if (Services.IsExists(handlertype))
+            {
+                return;
+            }
+        }
+
+        public void TryAdd<TEto>()
+        {
+            TryAdd(typeof(TEto))
         }
     }
 }
