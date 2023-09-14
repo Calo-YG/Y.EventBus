@@ -59,7 +59,7 @@ namespace Y.EventBus
                 return;
             }
 
-            Events.Append(new EventDiscription(eto, null));
+            Events.Append(new EventDiscription(eto));
 
             var handlerbaseType = typeof(IEventHandler<>);
 
