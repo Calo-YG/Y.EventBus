@@ -113,36 +113,36 @@ namespace Y.EventBus
         /// 消费者
         /// </summary>
         /// <returns></returns>
-        public async Task Subscribe<TEto>() where TEto : class
+        public Task Subscribe<TEto>() where TEto : class
         {
             var scope = ServiceProvider.CreateAsyncScope();
 
-            Task.Factory.StartNew(async () =>
-            {
-                var channel = Check(typeof(TEto));
+            return Task.Factory.StartNew(async () =>
+                   {
+                       var channel = Check(typeof(TEto));
 
-                var handler = scope.ServiceProvider.GetRequiredService<IEventHandler<TEto>>();
+                       var handler = scope.ServiceProvider.GetRequiredService<IEventHandler<TEto>>();
 
-                var reader = channel.Reader;
+                       var reader = channel.Reader;
 
-                try
-                {
-                    while (await channel.Reader.WaitToReadAsync())
-                    {
-                        while (reader.TryRead(out string str))
-                        {
+                     try
+                     {
+                       while (await channel.Reader.WaitToReadAsync())
+                       {
+                         while (reader.TryRead(out string str))
+                         {
                             var data = JsonConvert.DeserializeObject<TEto>(str);
 
                             await handler.HandelrAsync(data);
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    _logger.LogInformation($"本地事件总线异常{e.Source}--{e.Message}--{e.Data}");
-                    throw;
-                }
-            });
+                         }
+                       }
+                     }
+                     catch (Exception e)
+                     {
+                      _logger.LogInformation($"本地事件总线异常{e.Source}--{e.Message}--{e.Data}");
+                      throw;
+                     }
+                   });
         }
 
     }
