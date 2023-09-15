@@ -25,7 +25,7 @@ namespace Y.EventBus
         }
         
         ///订阅并且注入EventHandler
-        public void TryAdd(Type eto,Type handler)
+        public void TryAddChannle(Type eto,Type handler)
         {
             if(!Check(eto))
             {
@@ -46,13 +46,13 @@ namespace Y.EventBus
             Services.AddTransient(handlertype, handler);
         }
 
-        public void TryAdd<TEto, THandler>()
+        public void TryAddChannle<TEto, THandler>()
         {
-            TryAdd(typeof(TEto),typeof(THandler));  
+            TryAddChannle(typeof(TEto),typeof(THandler));  
         }
 
         
-        public void TryAdd(Type eto)
+        public void TryAddChannle(Type eto)
         {
             if (!Check(eto))
             {
@@ -71,9 +71,9 @@ namespace Y.EventBus
             }
         }
 
-        public void TryAdd<TEto>()
+        public void TryAddChannle<TEto>()
         {
-            TryAdd(typeof(TEto));
+            TryAddChannle(typeof(TEto));
         }
     }
 }
