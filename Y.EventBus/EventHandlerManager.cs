@@ -70,7 +70,7 @@ namespace Y.EventBus
 
         private Channel<string> Check(Type type)
         {
-            var attribute = typeof(Type).GetCustomAttributes()
+            var attribute = type .GetCustomAttributes()
                                    .OfType<EventDiscriptorAttribute>()
                                    .FirstOrDefault();
 
@@ -84,7 +84,7 @@ namespace Y.EventBus
             if(channel is null)
             {
                 ThrowChannelNullException.ThrowException(attribute.EventName);
-            }
+            } 
 
             return channel;
         }
