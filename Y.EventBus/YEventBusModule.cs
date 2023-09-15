@@ -19,7 +19,7 @@ namespace Y.EventBus
 
             var eventhandlerManager = scope.ServiceProvider.GetRequiredService<IEventHandlerManager>();
 
-            await eventhandlerManager.Subcrice();
+            await eventhandlerManager.CreateChannles();
         }
     }
 }

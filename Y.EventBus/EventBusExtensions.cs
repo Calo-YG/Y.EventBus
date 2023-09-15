@@ -29,7 +29,7 @@ namespace Y.EventBus
 
             var eventhandlerManager = scope.ServiceProvider.GetService<IEventHandlerManager>();
 
-            await eventhandlerManager.Subcrice();
+            await eventhandlerManager.CreateChannles();
 
             await func(eventhandlerManager);
         }

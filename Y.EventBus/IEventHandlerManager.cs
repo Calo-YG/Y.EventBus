@@ -4,8 +4,8 @@
     {
          Task WriteAsync<TEto>(TEto eto) where TEto : class;
 
-         Task Subcrice();
+         Task CreateChannles();
 
-         Task Comsuer<TEto>() where TEto : class;
+         Task Subscribe<TEto>() where TEto : class;
     }
 }
