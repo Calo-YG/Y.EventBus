@@ -19,10 +19,7 @@ namespace Y.EventBus
 
             var eventhandlerManager = scope.ServiceProvider.GetRequiredService<IEventHandlerManager>();
 
-            //开启订阅
             await eventhandlerManager.Subcrice();
-            //开启消费
-            await eventhandlerManager.Consumption();
         }
     }
 }

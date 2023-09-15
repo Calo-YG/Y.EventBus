@@ -113,9 +113,8 @@ namespace Y.EventBus
         /// 消费者
         /// </summary>
         /// <returns></returns>
-        public async Task Consumption()
+        public async Task Comsuer<TEto>() where TEto : class
         {
-            var baseType = typeof(IEventHandler<>);
 
             var scope = ServiceProvider.CreateAsyncScope();
 
@@ -125,14 +124,7 @@ namespace Y.EventBus
                 {
                     var channel = Check(item.EtoType);
 
-                    var handlertype = baseType.MakeGenericType(item.EtoType);
-
-                    var handler = scope.ServiceProvider.GetRequiredService(handlertype);
-
-                    if(handler is not IEventHandler @eventhandler)
-                    {
-                        return
-                    }
+                    var handler = scope.ServiceProvider.GetRequiredService<IEventHandler<TEto>>();
 
                     var reader = channel.Reader;
 
@@ -140,9 +132,11 @@ namespace Y.EventBus
                     {
                         while (await channel.Reader.WaitToReadAsync())
                         {
-                            while (reader.TryRead(out string data))
+                            while (reader.TryRead(out string str))
                             {
-                                await eventhandler.HandelrAsync(data);
+                                var data = JsonConvert.DeserializeObject<TEto>(str);
+
+                                await handler.HandelrAsync(data);
                             }
                         }
                     }

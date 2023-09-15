@@ -6,6 +6,6 @@
 
          Task Subcrice();
 
-         Task Consumption();
+         Task Comsuer<TEto>() where TEto : class;
     }
 }
