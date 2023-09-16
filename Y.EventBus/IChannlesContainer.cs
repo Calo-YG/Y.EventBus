@@ -1,7 +1,9 @@
-﻿namespace Y.EventBus
+﻿using System.Collections.Concurrent;
+
+namespace Y.EventBus
 {
     public interface IEventHandlerContainer
     {
-        public IReadOnlyList<EventDiscription> Events { get; }
+        public List<EventDiscription> Events { get; }
     }
 }

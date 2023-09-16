@@ -10,13 +10,13 @@
        /// <summary>
        /// channel 容量设置
        /// </summary>
-       public int Capacity { get; private set; } = 10000;  
+       public int Capacity { get; private set; }  
        /// <summary>
        /// 是否维持一个生产者多个消费者模型
        /// </summary>
-       public bool SigleReader { get; private set; } = true;
+       public bool SigleReader { get; private set; }
 
-       public EventDiscriptorAttribute(string eventName, int capacity, bool sigleReader)
+       public EventDiscriptorAttribute(string eventName, int capacity = 1000, bool sigleReader = true)
         {
             EventName = eventName;
             Capacity = capacity;

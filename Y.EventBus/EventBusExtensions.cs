@@ -6,8 +6,8 @@ namespace Y.EventBus
 {
     public  static class EventBusExtensions
     {
-        //添加事件总线并且添加订阅
-        public static IServiceCollection AddEventBusAndSubcrise(this IServiceCollection services,Action<EventHandlerContainer> action)
+        //添加事件总线并且添加channle管道
+        public static IServiceCollection AddEventBusAndChannles(this IServiceCollection services,Action<EventHandlerContainer> action)
         {
             services.ChcekNull();
 
@@ -22,16 +22,14 @@ namespace Y.EventBus
             return services;
         }
 
-        //开始消费
-        public static async Task StartConsumer(this IServiceProvider serviceProvider,Func<IEventHandlerManager,Task> func)
+        //创建通信管道
+        public static async Task InitChannles(this IServiceProvider serviceProvider,Func<IEventHandlerManager,Task> func)
         {
             var scope = serviceProvider.CreateAsyncScope(); 
 
-            var eventhandlerManager = scope.ServiceProvider.GetService<IEventHandlerManager>();
+            var eventhandlerManager = scope.ServiceProvider.GetRequiredService<IEventHandlerManager>();
 
             await eventhandlerManager.CreateChannles();
-
-            await func(eventhandlerManager);
         }
 
         //添加本地事件总线
@@ -43,11 +41,13 @@ namespace Y.EventBus
 
             services.AddSingleton<ILocalEventBus, LocalEventBus>();
 
+            services.AddHostedService<EventBusBackgroundService>();
+
             return services;
         }
 
-        //添加订阅
-        public static IServiceCollection AddSubcrise(this IServiceCollection services, Action<EventHandlerContainer> action)
+        //添加通信管道
+        public static IServiceCollection AddChannles(this IServiceCollection services, Action<EventHandlerContainer> action)
         {
             EventHandlerContainer eventHandlerContainer = new EventHandlerContainer(services);
 

@@ -6,6 +6,7 @@
 
          Task CreateChannles();
 
-         Task Subscribe<TEto>() where TEto : class;
+         void Subscribe<TEto>() where TEto : class;
+         Task Trigger();
     }
 }

@@ -22,6 +22,8 @@ namespace Y.EventBus
 
         private readonly ILogger _logger;
 
+        private ConcurrentDictionary<string,EventTrigger> EventTriggers;
+
         public EventHandlerManager( IServiceProvider serviceProvider
             , IEventHandlerContainer eventHandlerContainer
             , ILoggerFactory loggerFactory)
@@ -29,6 +31,7 @@ namespace Y.EventBus
             ServiceProvider = serviceProvider;
             _cancellation = CancellationToken.None;
             _eventHandlerContainer = eventHandlerContainer;
+            EventTriggers = new ConcurrentDictionary<string, EventTrigger>();
             _logger = loggerFactory.CreateLogger<IEventHandlerManager>();
         }
 
@@ -64,6 +67,8 @@ namespace Y.EventBus
                         });
 
                 Channels.TryAdd(attribute.EventName, channel);
+
+                _logger.LogInformation($"创建通信管道{item.EtoType}--{attribute.EventName}");
             }
             await Task.CompletedTask;
         }
@@ -113,37 +118,69 @@ namespace Y.EventBus
         /// 消费者
         /// </summary>
         /// <returns></returns>
-        public Task Subscribe<TEto>() where TEto : class
+        public void Subscribe<TEto>() where TEto : class
         {
-            var scope = ServiceProvider.CreateAsyncScope();
+            var attribute = typeof(TEto).GetCustomAttributes()
+           .OfType<EventDiscriptorAttribute>()
+           .FirstOrDefault();
 
-            return Task.Factory.StartNew(async () =>
-                   {
-                       var channel = Check(typeof(TEto));
+            if (attribute is null)
+            {
+                ThorwEventAttributeNullException.ThorwException();
+            }
 
-                       var handler = scope.ServiceProvider.GetRequiredService<IEventHandler<TEto>>();
+            if (EventTriggers.Keys.Any(p => p == attribute.EventName))
+            {
+                return;
+            }
 
-                       var reader = channel.Reader;
+            Func<Task> func = async () =>
+            {
+                var scope = ServiceProvider.CreateAsyncScope();
 
-                     try
-                     {
-                       while (await channel.Reader.WaitToReadAsync())
-                       {
-                         while (reader.TryRead(out string str))
-                         {
+                var channel = Check(typeof(TEto));
+
+                var handler = scope.ServiceProvider.GetRequiredService<IEventHandler<TEto>>();
+
+                var reader = channel.Reader;
+
+                try
+                {
+                    while (await channel.Reader.WaitToReadAsync())
+                    {
+                        while (reader.TryRead(out string str))
+                        {
                             var data = JsonConvert.DeserializeObject<TEto>(str);
 
+                            _logger.LogInformation(str);
+
                             await handler.HandelrAsync(data);
-                         }
-                       }
-                     }
-                     catch (Exception e)
-                     {
-                      _logger.LogInformation($"本地事件总线异常{e.Source}--{e.Message}--{e.Data}");
-                      throw;
-                     }
-                   });
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogInformation($"本地事件总线异常{e.Source}--{e.Message}--{e.Data}");
+                    throw;
+                }
+            };
+
+            var trigger = new EventTrigger();
+            trigger.Recived(func);
+
+            EventTriggers.TryAdd(attribute.EventName, trigger);
         }
 
+        public Task Trigger()
+        {
+            foreach ( var eventTrigger in EventTriggers )
+            {
+                Task.Factory.StartNew(async () =>
+                {
+                    await eventTrigger.Value.Trigger();
+                });
+            }
+            return Task.CompletedTask;  
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Concurrent;
 using Y.Module.DependencyInjection;
 using Y.Module.Extensions;
 
@@ -6,14 +7,14 @@ namespace Y.EventBus
 {
     public class EventHandlerContainer : IEventHandlerContainer,ISingletonInjection
     {
-        public IReadOnlyList<EventDiscription> Events { get; private set; }
+        public List<EventDiscription> Events { get; private set; }
 
         private readonly IServiceCollection Services;
 
         public EventHandlerContainer(IServiceCollection services)
         {
             Events = new List<EventDiscription>();
-            Services = services;            
+            Services = services;         
             services.AddSingleton<IEventHandlerContainer>(this);
         }
 
@@ -32,7 +33,7 @@ namespace Y.EventBus
                 return;
             }
 
-            Events.Append(new EventDiscription(eto, handler));
+            Events.Add(new EventDiscription(eto, handler));
 
             var handlerbaseType = typeof(IEventHandler<>);
 
@@ -59,7 +60,7 @@ namespace Y.EventBus
                 return;
             }
 
-            Events.Append(new EventDiscription(eto));
+            Events.Add(new EventDiscription(eto));
 
             var handlerbaseType = typeof(IEventHandler<>);
 
