@@ -2,6 +2,6 @@
 {
     public interface ILocalEventBus
     {
-        public Task PublichAsync<TEto>(TEto eto, CancellationToken cancellationToken) where TEto: class;
+        public Task PublichAsync<TEto>(TEto eto) where TEto: class;
     }
 }

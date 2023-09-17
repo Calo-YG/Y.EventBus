@@ -9,7 +9,7 @@ namespace Y.EventBus
         {
             _eventHandlerManager = eventHandlerManager;
         }
-        public async Task PublichAsync<TEto>(TEto eto, CancellationToken cancellationToken) where TEto : class
+        public async Task PublichAsync<TEto>(TEto eto) where TEto : class
         {
             await _eventHandlerManager.WriteAsync(eto);
         }
