@@ -1,29 +1,29 @@
 ## Y.EventBus
 
-»ùÓÚ.NET Æ½Ì¨ C#	ÓïÑÔ Ìá¹©µÄChannle´òÔìµÄÒì²½ÊÂ¼ş×ÜÏß¿â
+åŸºäº.NET å¹³å° C#	è¯­è¨€ æä¾›çš„Channleæ‰“é€ çš„å¼‚æ­¥äº‹ä»¶æ€»çº¿åº“
 
-## [ChannleÊ¹ÓÃ](https://learn.microsoft.com/zh-cn/dotnet/core/extensions/channels)
+## [Channleä½¿ç”¨](https://learn.microsoft.com/zh-cn/dotnet/core/extensions/channels)
 
-### [Ô´ÂëÁ´½Ó](https://github.com/Calo-YG/Y.EventBus)
+### [æºç é“¾æ¥](https://github.com/Calo-YG/Y.EventBus)
 
-### Ê¹ÓÃ
+### ä½¿ç”¨
 
-EventDiscriptorAttribute ÌØĞÔ
+EventDiscriptorAttribute ç‰¹æ€§
 
 ```csharp
     [AttributeUsage(AttributeTargets.Class,AllowMultiple = false,Inherited = false)]
     public class EventDiscriptorAttribute:Attribute
     {
        /// <summary>
-       /// ÊÂ¼ş2Ãû³Æ
+       /// äº‹ä»¶2åç§°
        /// </summary>
        public string EventName { get; private set; }
        /// <summary>
-       /// channel ÈİÁ¿ÉèÖÃ
+       /// channel å®¹é‡è®¾ç½®
        /// </summary>
        public int Capacity { get; private set; }  
        /// <summary>
-       /// ÊÇ·ñÎ¬³ÖÒ»¸öÉú²úÕß¶à¸öÏû·ÑÕßÄ£ĞÍ
+       /// æ˜¯å¦ç»´æŒä¸€ä¸ªç”Ÿäº§è€…å¤šä¸ªæ¶ˆè´¹è€…æ¨¡å‹
        /// </summary>
        public bool SigleReader { get; private set; }
 
@@ -36,7 +36,7 @@ EventDiscriptorAttribute ÌØĞÔ
     }
 ```
 
-Eto ÊµÏÖÌØĞÔ
+Eto å®ç°ç‰¹æ€§
 
 ```csharp
     [EventDiscriptor("test",1000,false)]
@@ -48,7 +48,7 @@ Eto ÊµÏÖÌØĞÔ
     }
 ```
 
-Ìí¼ÓÍ¨ĞÅ¹ÜµÀ
+æ·»åŠ é€šä¿¡ç®¡é“
 
 ```csharp
 context.Services.AddChannles(p =>
@@ -57,13 +57,13 @@ context.Services.AddChannles(p =>
 });
 ```
 
-×¢ÈëEventBus
+æ³¨å…¥EventBus
 
 ```csharp
 context.Services.AddEventBus();
 ```
 
-´´½¨¶©ÔÄEto
+åˆ›å»ºè®¢é˜…Eto
 
 ```csharp
 var scope = context.ServiceProvider.CreateScope();
@@ -77,7 +77,7 @@ await eventhandlerManager.CreateChannles();
 eventhandlerManager.Subscribe<TestEto>();
 ```
 
-EventHandler¶¨Òå
+EventHandlerå®šä¹‰
 
 ```csharp
     public class TestEventHandler : IEventHandler<TestEto>,ITransientInjection
@@ -93,5 +93,24 @@ EventHandler¶¨Òå
             return Task.CompletedTask;
         }
     }
-    //×¢ÒâEventHandlerµÄÉúÃüÖÜÆÚÇëÊ¹ÓÃAddTrasint() »òÕßAddScoped()
+    //æ³¨æ„EventHandlerçš„ç”Ÿå‘½å‘¨æœŸè¯·ä½¿ç”¨AddTrasint() æˆ–è€…AddScoped()
 ```
+
+```csharp
+//æ„é€ å‡½æ•°æ³¨å…¥å³å¯ä½¿ç”¨
+TestEto eto = null;
+
+for(var i = 0; i < 100; i++)
+{
+        eto = new TestEto()
+        {
+            Name ="LocalEventBus" + i.ToString(),
+            Description ="wyg"+i.ToString(),
+        };
+        await _localEventBus.PublichAsync(eto,CancellationToken.None);
+}
+```
+
+![image](https://github.com/Calo-YG/Y.EventBus/assets/74019004/bfabb05b-518d-4699-bfd1-18b711659c88)
+
+
