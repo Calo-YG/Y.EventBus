@@ -1,8 +1,6 @@
-﻿using Y.Module.DependencyInjection;
-
-namespace Y.EventBus
+﻿namespace Y.EventBus
 {
-    public class LocalEventBus : ILocalEventBus,ITransientInjection
+    public class LocalEventBus : ILocalEventBus
     {
         private readonly IEventHandlerManager _eventHandlerManager;
         public LocalEventBus(IEventHandlerManager eventHandlerManager)

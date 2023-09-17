@@ -1,6 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using System.Runtime.CompilerServices;
-using Y.Module.Extensions;
 
 namespace Y.EventBus
 {
@@ -9,11 +7,9 @@ namespace Y.EventBus
         //添加事件总线并且添加channle管道
         public static IServiceCollection AddEventBusAndChannles(this IServiceCollection services,Action<EventHandlerContainer> action)
         {
-            services.ChcekNull();
-
             services.AddSingleton<IEventHandlerManager, EventHandlerManager>();
 
-            services.AddSingleton<ILocalEventBus, LocalEventBus>();
+            services.AddTransient<ILocalEventBus, LocalEventBus>();
 
             EventHandlerContainer eventHandlerContainer = new EventHandlerContainer(services);
 
@@ -35,11 +31,9 @@ namespace Y.EventBus
         //添加本地事件总线
         public static IServiceCollection AddEventBus(this IServiceCollection services)
         {
-            services.ChcekNull();
-
             services.AddSingleton<IEventHandlerManager, EventHandlerManager>();
 
-            services.AddSingleton<ILocalEventBus, LocalEventBus>();
+            services.AddTransient<ILocalEventBus, LocalEventBus>();
 
             services.AddHostedService<EventBusBackgroundService>();
 

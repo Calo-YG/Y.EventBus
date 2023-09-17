@@ -1,6 +1,4 @@
-﻿using System.Collections.Concurrent;
-
-namespace Y.EventBus
+﻿namespace Y.EventBus
 {
     public interface IEventHandlerContainer
     {

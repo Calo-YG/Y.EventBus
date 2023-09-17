@@ -4,11 +4,10 @@ using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Threading.Channels;
-using Y.Module.DependencyInjection;
 
 namespace Y.EventBus
 {
-    public class EventHandlerManager : IEventHandlerManager,ISingletonInjection
+    public class EventHandlerManager : IEventHandlerManager
     {
         private ConcurrentDictionary<string, Channel<string>> Channels = new ConcurrentDictionary<string, Channel<string>>();
 

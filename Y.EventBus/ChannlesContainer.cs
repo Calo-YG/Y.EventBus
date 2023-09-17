@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Y.Module.DependencyInjection;
-using Y.Module.Extensions;
 
 namespace Y.EventBus
 {
-    public class EventHandlerContainer : IEventHandlerContainer,ISingletonInjection
+    public class EventHandlerContainer : IEventHandlerContainer
     {
         public List<EventDiscription> Events { get; private set; }
 
@@ -38,7 +36,7 @@ namespace Y.EventBus
 
             var handlertype = handlerbaseType.MakeGenericType(eto);
 
-            if(Services.IsExists(handlertype))
+            if(Services.Any(P=>P.ServiceType==handlertype))
             {
                 return;
             }
@@ -65,7 +63,7 @@ namespace Y.EventBus
 
             var handlertype = handlerbaseType.MakeGenericType(eto);
 
-            if (Services.IsExists(handlertype))
+            if (Services.Any(P => P.ServiceType == handlertype))
             {
                 return;
             }
