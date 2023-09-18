@@ -7,7 +7,7 @@ using System.Threading.Channels;
 
 namespace Y.EventBus
 {
-    public class EventHandlerManager : IEventHandlerManager
+    public class EventHandlerManager : IEventHandlerManager,IDisposable 
     {
         private ConcurrentDictionary<string, Channel<string>> Channels = new ConcurrentDictionary<string, Channel<string>>();
 
@@ -22,6 +22,8 @@ namespace Y.EventBus
         private readonly ILogger _logger;
 
         private ConcurrentDictionary<string,EventTrigger> EventTriggers;
+
+        private bool IsInitConsumer = true;
 
         public EventHandlerManager( IServiceProvider serviceProvider
             , IEventHandlerContainer eventHandlerContainer
@@ -96,6 +98,11 @@ namespace Y.EventBus
         public void Dispose()
         {
             IsDiposed = true;
+            IsInitConsumer = true;
+            foreach(var trigger in EventTriggers.Values)
+            {
+                trigger.Dispose();
+            }
             _cancellation.ThrowIfCancellationRequested();
         }
 
@@ -172,13 +179,18 @@ namespace Y.EventBus
 
         public Task Trigger()
         {
-            foreach ( var eventTrigger in EventTriggers )
+            //只允许初始化一次消费者
+            if (IsInitConsumer)
             {
-                Task.Factory.StartNew(async () =>
+                foreach (var eventTrigger in EventTriggers)
                 {
-                    await eventTrigger.Value.Trigger();
-                });
+                    Task.Factory.StartNew(async () =>
+                    {
+                        await eventTrigger.Value.Trigger();
+                    });
+                }
             }
+            IsInitConsumer = false;
             return Task.CompletedTask;  
         }
     }
