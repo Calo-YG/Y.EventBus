@@ -11,6 +11,8 @@ namespace Y.EventBus
 
             services.AddTransient<ILocalEventBus, LocalEventBus>();
 
+            services.AddHostedService<EventBusBackgroundService>();
+
             EventHandlerContainer eventHandlerContainer = new EventHandlerContainer(services);
 
             action.Invoke(eventHandlerContainer);
@@ -19,13 +21,15 @@ namespace Y.EventBus
         }
 
         //创建通信管道
-        public static async Task InitChannles(this IServiceProvider serviceProvider,Func<IEventHandlerManager,Task> func)
+        public static async Task InitChannles(this IServiceProvider serviceProvider,Action<IEventHandlerManager> action)
         {
             var scope = serviceProvider.CreateAsyncScope(); 
 
             var eventhandlerManager = scope.ServiceProvider.GetRequiredService<IEventHandlerManager>();
 
             await eventhandlerManager.CreateChannles();
+
+            action.Invoke(eventhandlerManager);
         }
 
         //添加本地事件总线
