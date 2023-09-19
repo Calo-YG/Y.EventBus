@@ -116,9 +116,12 @@ namespace Y.EventBus
         {
             var channel = Check(typeof(TEto));
 
-            var data = JsonConvert.SerializeObject(eto);
+            while ( await channel.Writer.WaitToWriteAsync(CancellationToken.None)) 
+            {
+                var data = JsonConvert.SerializeObject(eto);
 
-            await channel.Writer.WriteAsync(data, _cancellation);
+                await channel.Writer.WriteAsync(data, _cancellation);
+            }          
         }
         /// <summary>
         /// 消费者
