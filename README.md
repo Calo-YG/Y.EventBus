@@ -1,8 +1,8 @@
 ## Y.EventBus
 
-基于.NET 平台 C#	语言 提供的Channle打造的异步事件总线库
+基于.NET 平台 C#	语言 提供的Channel打造的异步事件总线库
 
-## [Channle使用](https://learn.microsoft.com/zh-cn/dotnet/core/extensions/channels)
+## [Channel使用](https://learn.microsoft.com/zh-cn/dotnet/core/extensions/channels)
 
 ### [源码链接](https://github.com/Calo-YG/Y.EventBus)
 
