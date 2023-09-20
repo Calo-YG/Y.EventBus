@@ -9,7 +9,7 @@ namespace Y.EventBus
 {
     public class EventHandlerManager : IEventHandlerManager,IDisposable 
     {
-        private ConcurrentDictionary<string, Channel<string>> Channels = new ConcurrentDictionary<string, Channel<string>>();
+        private ConcurrentDictionary<string, Channel<string>> Channels;
 
         private bool IsDiposed = false;
 
@@ -32,6 +32,7 @@ namespace Y.EventBus
             ServiceProvider = serviceProvider;
             _cancellation = CancellationToken.None;
             _eventHandlerContainer = eventHandlerContainer;
+            Channels = new ConcurrentDictionary<string, Channel<string>>();
             EventTriggers = new ConcurrentDictionary<string, EventTrigger>();
             _logger = loggerFactory.CreateLogger<IEventHandlerManager>();
         }
