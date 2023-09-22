@@ -4,7 +4,7 @@
     public class EventDiscriptorAttribute:Attribute
     {
        /// <summary>
-       /// 事件2名称
+       /// 事件名称
        /// </summary>
        public string EventName { get; private set; }
        /// <summary>

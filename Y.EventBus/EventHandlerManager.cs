@@ -7,7 +7,7 @@ using System.Threading.Channels;
 
 namespace Y.EventBus
 {
-    public class EventHandlerManager : IEventHandlerManager,IDisposable 
+    public class EventHandlerManager : IEventHandlerManager, IDisposable
     {
         private ConcurrentDictionary<string, Channel<string>> Channels;
 
@@ -21,19 +21,18 @@ namespace Y.EventBus
 
         private readonly ILogger _logger;
 
-        private ConcurrentDictionary<string,EventTrigger> EventTriggers;
-
         private bool IsInitConsumer = true;
 
-        public EventHandlerManager( IServiceProvider serviceProvider
-            , IEventHandlerContainer eventHandlerContainer
-            , ILoggerFactory loggerFactory)
+        public EventHandlerManager(
+            IServiceProvider serviceProvider,
+            IEventHandlerContainer eventHandlerContainer,
+            ILoggerFactory loggerFactory
+        )
         {
             ServiceProvider = serviceProvider;
             _cancellation = CancellationToken.None;
             _eventHandlerContainer = eventHandlerContainer;
             Channels = new ConcurrentDictionary<string, Channel<string>>();
-            EventTriggers = new ConcurrentDictionary<string, EventTrigger>();
             _logger = loggerFactory.CreateLogger<IEventHandlerManager>();
         }
 
@@ -41,11 +40,12 @@ namespace Y.EventBus
         {
             var eventDiscriptions = _eventHandlerContainer.Events;
 
-            foreach(var item in eventDiscriptions)
+            foreach (var item in eventDiscriptions)
             {
-                var attribute = item.EtoType.GetCustomAttributes()
-                                            .OfType<EventDiscriptorAttribute>()
-                                            .FirstOrDefault();
+                var attribute = item.EtoType
+                    .GetCustomAttributes()
+                    .OfType<EventDiscriptorAttribute>()
+                    .FirstOrDefault();
 
                 if (attribute is null)
                 {
@@ -60,13 +60,14 @@ namespace Y.EventBus
                 }
 
                 channel = Channel.CreateBounded<string>(
-                        new BoundedChannelOptions(attribute.Capacity)
-                              {
-                                SingleWriter = true,
-                                SingleReader = false,
-                                AllowSynchronousContinuations = false,
-                                FullMode = BoundedChannelFullMode.Wait
-                        });
+                    new BoundedChannelOptions(attribute.Capacity)
+                    {
+                        SingleWriter = true,
+                        SingleReader = false,
+                        AllowSynchronousContinuations = false,
+                        FullMode = BoundedChannelFullMode.Wait
+                    }
+                );
 
                 Channels.TryAdd(attribute.EventName, channel);
 
@@ -77,9 +78,9 @@ namespace Y.EventBus
 
         private Channel<string> Check(Type type)
         {
-            var attribute = type .GetCustomAttributes()
-                                   .OfType<EventDiscriptorAttribute>()
-                                   .FirstOrDefault();
+            var attribute = type.GetCustomAttributes()
+                .OfType<EventDiscriptorAttribute>()
+                .FirstOrDefault();
 
             if (attribute is null)
             {
@@ -88,10 +89,10 @@ namespace Y.EventBus
 
             var channel = Channels.GetValueOrDefault(attribute.EventName);
 
-            if(channel is null)
+            if (channel is null)
             {
                 ThrowChannelNullException.ThrowException(attribute.EventName);
-            } 
+            }
 
             return channel;
         }
@@ -100,10 +101,6 @@ namespace Y.EventBus
         {
             IsDiposed = true;
             IsInitConsumer = true;
-            foreach(var trigger in EventTriggers.Values)
-            {
-                trigger.Dispose();
-            }
             _cancellation.ThrowIfCancellationRequested();
         }
 
@@ -113,89 +110,75 @@ namespace Y.EventBus
         /// <typeparam name="TEto"></typeparam>
         /// <param name="eto"></param>
         /// <returns></returns>
-        public async Task WriteAsync<TEto>(TEto eto) where TEto : class
+        public async Task WriteAsync<TEto>(TEto eto)
+            where TEto : class
         {
             var channel = Check(typeof(TEto));
 
-            while ( await channel.Writer.WaitToWriteAsync(CancellationToken.None)) 
+            while (await channel.Writer.WaitToWriteAsync(CancellationToken.None))
             {
                 var data = JsonConvert.SerializeObject(eto);
 
                 await channel.Writer.WriteAsync(data, _cancellation);
-            }          
+            }
         }
+
         /// <summary>
         /// 消费者
         /// </summary>
         /// <returns></returns>
-        public void Subscribe<TEto>() where TEto : class
+        public async Task StartConsumer()
         {
-            var attribute = typeof(TEto).GetCustomAttributes()
-           .OfType<EventDiscriptorAttribute>()
-           .FirstOrDefault();
-
-            if (attribute is null)
-            {
-                ThorwEventAttributeNullException.ThorwException();
-            }
-
-            if (EventTriggers.Keys.Any(p => p == attribute.EventName))
+            if (!IsInitConsumer)
             {
                 return;
             }
 
-            Func<Task> func = async () =>
+            foreach (var item in _eventHandlerContainer.Events)
             {
-                var scope = ServiceProvider.CreateAsyncScope();
+                _ = Task.Factory.StartNew(async () =>
+                 {
+                     var attribute = item.EtoType
+                         .GetCustomAttributes()
+                         .OfType<EventDiscriptorAttribute>()
+                         .FirstOrDefault();
 
-                var channel = Check(typeof(TEto));
+                     var scope = ServiceProvider.CreateAsyncScope();
 
-                var handler = scope.ServiceProvider.GetRequiredService<IEventHandler<TEto>>();
+                     var channel = Check(item.EtoType);
 
-                var reader = channel.Reader;
+                     var handlerType = typeof(IEventHandler<>).MakeGenericType(item.EtoType);
 
-                try
-                {
-                    while (await channel.Reader.WaitToReadAsync())
-                    {
-                        while (reader.TryRead(out string str))
-                        {
-                            var data = JsonConvert.DeserializeObject<TEto>(str);
+                     var handler = scope.ServiceProvider.GetRequiredService(handlerType);
 
-                            _logger.LogInformation(str);
+                     var reader = channel.Reader;
 
-                            await handler.HandelrAsync(data);
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    _logger.LogInformation($"本地事件总线异常{e.Source}--{e.Message}--{e.Data}");
-                    throw;
-                }
-            };
+                     try
+                     {
+                         while (await channel.Reader.WaitToReadAsync())
+                         {
+                             while (reader.TryRead(out string str))
+                             {
+                                 var data = JsonConvert.DeserializeObject(str, item.EtoType);
 
-            var trigger = new EventTrigger();
-            trigger.Recived(func);
+                                 _logger.LogInformation(str);
 
-            EventTriggers.TryAdd(attribute.EventName, trigger);
-        }
-
-        public Task Trigger()
-        {
-            //只允许初始化一次消费者
-            if (IsInitConsumer)
-            {
-                foreach (var eventTrigger in EventTriggers)
-                {
-                    Task.Factory.StartNew(async () =>
-                    {
-                        await eventTrigger.Value.Trigger();
-                    });
-                }
+                                 await (Task)
+                                     handlerType
+                                         .GetMethod("HandelrAsync")
+                                         .Invoke(handler, new object[] { data });
+                             }
+                         }
+                     }
+                     catch (Exception e)
+                     {
+                         _logger.LogInformation($"本地事件总线异常{e.Source}--{e.Message}--{e.Data}");
+                         throw;
+                     }
+                 });
             }
             IsInitConsumer = false;
-            return Task.CompletedTask;  
+            await Task.CompletedTask;
         }
     }
 }

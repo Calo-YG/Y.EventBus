@@ -5,7 +5,7 @@ namespace Y.EventBus
     public  static class EventBusExtensions
     {
         //添加事件总线并且添加channle管道
-        public static IServiceCollection AddEventBusAndChannles(this IServiceCollection services,Action<EventHandlerContainer> action)
+        public static IServiceCollection AddEventBusAndSubscribes(this IServiceCollection services,Action<EventHandlerContainer> action)
         {
             services.AddSingleton<IEventHandlerManager, EventHandlerManager>();
 
@@ -45,7 +45,7 @@ namespace Y.EventBus
         }
 
         //添加通信管道
-        public static IServiceCollection AddChannles(this IServiceCollection services, Action<EventHandlerContainer> action)
+        public static IServiceCollection Subscribes(this IServiceCollection services, Action<EventHandlerContainer> action)
         {
             EventHandlerContainer eventHandlerContainer = new EventHandlerContainer(services);
 

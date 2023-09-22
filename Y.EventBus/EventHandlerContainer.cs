@@ -1,16 +1,17 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Concurrent;
 
 namespace Y.EventBus
 {
     public class EventHandlerContainer : IEventHandlerContainer
     {
-        public List<EventDiscription> Events { get; private set; }
+        public ConcurrentBag<EventDiscription> Events { get; private set; }
 
         private readonly IServiceCollection Services;
 
         public EventHandlerContainer(IServiceCollection services)
         {
-            Events = new List<EventDiscription>();
+            Events = new ConcurrentBag<EventDiscription>();
             Services = services;         
             services.AddSingleton<IEventHandlerContainer>(this);
         }
@@ -23,7 +24,7 @@ namespace Y.EventBus
         }
         
         ///订阅并且注入EventHandler
-        public void TryAddChannle(Type eto,Type handler)
+        public void Subscribe(Type eto,Type handler)
         {
             if(!Check(eto))
             {
@@ -44,13 +45,13 @@ namespace Y.EventBus
             Services.AddTransient(handlertype, handler);
         }
 
-        public void TryAddChannle<TEto, THandler>()
+        public void Subscribe<TEto, THandler>()
         {
-            TryAddChannle(typeof(TEto),typeof(THandler));  
+            Subscribe(typeof(TEto),typeof(THandler));  
         }
 
         
-        public void TryAddChannle(Type eto)
+        public void Subscribe(Type eto)
         {
             if (!Check(eto))
             {
@@ -69,9 +70,9 @@ namespace Y.EventBus
             }
         }
 
-        public void TryAddChannle<TEto>()
+        public void Subscribe<TEto>()
         {
-            TryAddChannle(typeof(TEto));
+            Subscribe(typeof(TEto));
         }
     }
 }

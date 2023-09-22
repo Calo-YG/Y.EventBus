@@ -11,7 +11,7 @@ namespace Y.EventBus
         }  
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await _eventHandlerManager.Trigger();
+            await _eventHandlerManager.StartConsumer();
         }
     }
 }
