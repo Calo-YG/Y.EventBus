@@ -45,34 +45,11 @@ namespace Y.EventBus
             Services.AddTransient(handlertype, handler);
         }
 
-        public void Subscribe<TEto, THandler>()
+        public void Subscribe<TEto, THandler>() 
+            where TEto : class
+            where THandler :IEventHandler<TEto>
         {
             Subscribe(typeof(TEto),typeof(THandler));  
-        }
-
-        
-        public void Subscribe(Type eto)
-        {
-            if (!Check(eto))
-            {
-                return;
-            }
-
-            Events.Add(new EventDiscription(eto));
-
-            var handlerbaseType = typeof(IEventHandler<>);
-
-            var handlertype = handlerbaseType.MakeGenericType(eto);
-
-            if (Services.Any(P => P.ServiceType == handlertype))
-            {
-                return;
-            }
-        }
-
-        public void Subscribe<TEto>()
-        {
-            Subscribe(typeof(TEto));
         }
     }
 }
