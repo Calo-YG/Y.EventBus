@@ -15,7 +15,7 @@ EventDiscriptorAttribute 特性
     public class EventDiscriptorAttribute:Attribute
     {
        /// <summary>
-       /// 事件2名称
+       /// 事件名称
        /// </summary>
        public string EventName { get; private set; }
        /// <summary>
@@ -51,10 +51,10 @@ Eto 实现特性
 添加通信管道
 
 ```csharp
-context.Services.AddChannles(p =>
-{
-    p.TryAddChannle<TestEto>();
-});
+ context.Services.Subscribes(p =>
+ {
+    p.Subscribe<TestEto,TestEventHandler>();
+ });
 ```
 
 注入EventBus
@@ -73,8 +73,6 @@ var eventhandlerManager = scope.ServiceProvider.GetRequiredService<IEventHandler
 await authorizeManager.AddAuthorizeRegiester();
 
 await eventhandlerManager.CreateChannles();
-
-eventhandlerManager.Subscribe<TestEto>();
 ```
 
 EventHandler定义
