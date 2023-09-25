@@ -109,13 +109,13 @@ namespace Y.EventBus
         /// </summary>
         /// <typeparam name="TEto"></typeparam>
         /// <param name="eto"></param>
-        /// <returns></returns>
+        /// <returns></returns> 
         public async Task WriteAsync<TEto>(TEto eto)
             where TEto : class
         {
             var channel = Check(typeof(TEto));
 
-            while(await channel.Writer.WaitToWriteAsync())
+            while (await channel.Writer.WaitToWriteAsync())
             {
                 var data = JsonConvert.SerializeObject(eto);
 
