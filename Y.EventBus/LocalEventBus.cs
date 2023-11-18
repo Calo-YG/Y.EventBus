@@ -7,9 +7,14 @@
         {
             _eventHandlerManager = eventHandlerManager;
         }
+        public async Task EnqueueAsync<TEto>(TEto eto) where TEto : class
+        {
+            await _eventHandlerManager.EnqueueAsync(eto);
+        }
+
         public async Task PublichAsync<TEto>(TEto eto) where TEto : class
         {
-            await _eventHandlerManager.WriteAsync(eto);
+            await _eventHandlerManager.ExecuteAsync(eto);
         }
     }
 }

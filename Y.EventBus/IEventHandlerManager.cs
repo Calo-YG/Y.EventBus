@@ -2,9 +2,11 @@
 {
     public interface IEventHandlerManager
     {
-         Task WriteAsync<TEto>(TEto eto) where TEto : class;
+         Task EnqueueAsync<TEto>(TEto eto) where TEto : class;
 
          Task CreateChannles();
          Task StartConsumer();
+
+        Task ExecuteAsync<TEto>(TEto eto) where TEto : class;
     }
 }

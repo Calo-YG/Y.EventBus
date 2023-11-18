@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Reflection;
+using System.Reflection.PortableExecutable;
 using System.Threading.Channels;
 
 namespace Y.EventBus
@@ -110,7 +111,7 @@ namespace Y.EventBus
         /// <typeparam name="TEto"></typeparam>
         /// <param name="eto"></param>
         /// <returns></returns> 
-        public async Task WriteAsync<TEto>(TEto eto)
+        public async Task EnqueueAsync<TEto>(TEto eto)
             where TEto : class
         {
             var channel = Check(typeof(TEto));
@@ -123,6 +124,17 @@ namespace Y.EventBus
 
                 break;
             }
+        }
+
+        public async Task ExecuteAsync<TEto>(TEto eto) where TEto : class
+        {
+            var channel = Check(typeof(TEto));
+
+            var scope = ServiceProvider.CreateAsyncScope();
+
+            var handler = scope.ServiceProvider.GetRequiredService<IEventHandler<TEto>>();
+
+            await handler.HandelrAsync(eto);
         }
 
         /// <summary>
