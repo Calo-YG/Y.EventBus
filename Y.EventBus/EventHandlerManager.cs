@@ -175,17 +175,20 @@ namespace Y.EventBus
                              {
                                  var data = JsonConvert.DeserializeObject(str, item.EtoType);
 
-                                 _logger.LogInformation(str);
+                                 _logger.LogInformation($"事件名称：{attribute.EventName} --执行开始时间：{DateTime.Now}");
 
                                  await (Task)
                                      handlerType
                                          .GetMethod("HandelrAsync")
                                          .Invoke(handler, new object[] { data });
+                                 
+                                 _logger.LogInformation($"事件名称：{attribute.EventName} --执行完成时间：{DateTime.Now}");
                              }
                          }
                      }
                      catch (Exception e)
                      {
+                         _logger.LogInformation($"事件名称：{attribute.EventName} --执行异常时间：{DateTime.Now}");
                          _logger.LogInformation($"本地事件总线异常{e.Source}--{e.Message}--{e.Data}");
                          throw;
                      }
